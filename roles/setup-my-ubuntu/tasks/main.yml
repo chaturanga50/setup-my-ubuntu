@@ -1,0 +1,116 @@
+---
+
+- name: add required GPG keys
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  loop:
+    - https://download.docker.com/linux/ubuntu/gpg
+    - https://packages.microsoft.com/keys/microsoft.asc
+    - https://dl-ssl.google.com/linux/linux_signing_key.pub
+
+- name: add apt repositories
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  loop:
+    - deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
+    - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
+
+- name: install required apt packages
+  apt:
+    name:
+      - gnome-terminal
+      - python-pip
+      - python3-pip
+      - git
+      - vim
+      - telnet
+      - curl
+      - net-tools
+      - libxslt1-dev
+      - libcurl4-openssl-dev
+      - libksba8
+      - libksba-dev
+      - libqtwebkit-dev
+      - libreadline-dev
+      - build-essential
+      - apt-transport-https
+      - ca-certificates
+      - gnupg-agent
+      - software-properties-common
+      - libsqlite3-dev
+      - sqlite3
+      - gconf2
+      - libasound2
+      - libgtk2.0-0
+      - libxss1
+      - code
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - google-chrome-stable
+      - jq
+      - gparted
+    state: latest
+    update_cache: yes
+
+- name: install required apt packages deb
+  apt:
+    deb:
+      - https://raw.githubusercontent.com/jrnewell/ubuntu-gnome-terminal-patch/master/gnome-terminal-data_3.28.2-1ubuntu1~18.04.1_all.deb
+      - https://raw.githubusercontent.com/jrnewell/ubuntu-gnome-terminal-patch/master/gnome-terminal_3.28.2-1ubuntu1~18.04.1_amd64.deb
+
+- name: install required pip packages
+  pip:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - ansible
+    - awscli
+    - boto3
+    - botocore
+    - requests
+
+- name: history date and time enable
+  lineinfile:
+    dest: /etc/bash.bashrc
+    line: 'HISTTIMEFORMAT="%d/%m/%y %T "'
+
+- name: set force_color_prompt
+  lineinfile:
+    dest: /root/.bashrc
+    regexp: '^#force_color_prompt=yes'
+    line: 'force_color_prompt=yes'
+
+- name: set PS1 user colour 
+  replace:
+    path: /root/.bashrc
+    regexp: '32m'
+    replace: '31m'
+    backup: yes
+
+- name: set PS1 prompt colour
+  replace:
+    path: /root/.bashrc
+    regexp: '34m'
+    replace: '31m'
+    backup: yes
+
+- name: add manually installing package update script
+  copy:
+    src:
+      - packages.json
+      - update_custom_software.sh
+    dest: /usr/local/bin/
+    mode: '0755'
+
+- name: start and enable services
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    daemon_reload: yes
+    state: started
+  loop:
+    - docker

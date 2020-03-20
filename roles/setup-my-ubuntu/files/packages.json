@@ -1,0 +1,34 @@
+[
+    {
+        "name": "terraform",
+        "install_bin": "/usr/bin/terraform",
+        "local_version": "${install_bin} --version | awk '{ print $2 }' | cut -c 2-",
+        "latest_version": "curl --silent https://api.github.com/repos/hashicorp/terraform/releases/latest | jq --raw-output '.tag_name' | cut -c 2-",
+        "download_script": "curl -# https://releases.hashicorp.com/terraform/${latest_release}/terraform_${latest_release}_linux_amd64.zip  -o /${download_folder}/terraform_${latest_release}_linux_amd64.zip",
+        "final_output": "zip"
+    },
+    {
+        "name": "docker-compose",
+        "install_bin": "/usr/bin/docker-compose",
+        "local_version": "${install_bin} --version | awk '{ print $3 }' | cut -d ',' -f1",
+        "latest_version": "curl --silent https://api.github.com/repos/docker/compose/releases/latest | jq --raw-output '.tag_name'",
+        "download_script": "curl -# -L https://github.com/docker/compose/releases/download/${latest_release}/docker-compose-`uname -s`-`uname -m` -o /${download_folder}/docker-compose-`uname -s`-`uname -m`",
+        "final_output": "binary"
+    },
+    {
+        "name": "helm",
+        "install_bin": "/usr/bin/helm",
+        "local_version": "${install_bin} version --template='{{ .Version }}'",
+        "latest_version": "curl --silent https://api.github.com/repos/helm/helm/releases/latest | jq --raw-output '.tag_name' | cut -c 2-",
+        "download_script": "curl -# https://get.helm.sh/helm-${latest_release}-linux-amd64.tar.gz -o /${download_folder}/helm-v${latest_release}-linux-amd64.tar.gz",
+        "final_output": "tar.gz"
+    },
+    {
+        "name": "kubectl",
+        "install_bin": "/usr/bin/kubectl",
+        "local_version": "${install_bin} version --client --short=true | awk '{ print $3 }'",
+        "latest_version": "curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt",
+        "download_script": "curl -# -L https://storage.googleapis.com/kubernetes-release/release/${latest_release}/bin/linux/amd64/kubectl -o /${download_folder}/kubectl",
+        "final_output": "binary"
+    }
+]

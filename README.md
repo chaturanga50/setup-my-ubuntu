@@ -1,0 +1,1 @@
+#### script to setup my ubuntu laptop
